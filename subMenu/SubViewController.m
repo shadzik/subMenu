@@ -162,7 +162,7 @@
         
 		searchView.frame = CGRectMake(rect.origin.x, 0, rect.size.width, rect.size.height);
 	}
-    
+    */
 	UIEdgeInsets i = scrollView.scrollIndicatorInsets;
     
 	if (scrollView.contentOffset.y < rect.size.height) {
@@ -173,7 +173,7 @@
 	}
     
 	scrollView.scrollIndicatorInsets = i;
-    */
+    
 }
 
 - (void)didReceiveMemoryWarning
