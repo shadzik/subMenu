@@ -51,6 +51,7 @@
     
     searchSpace = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
     remaining = [[UINavigationBar alloc] initWithFrame:CGRectMake(260, 0, 60, 44)];
+    remaining.clipsToBounds = YES;
     searchView = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, 260, 44)];
     searchView.barStyle=UIBarStyleDefault;
     searchView.showsCancelButton=NO;
@@ -90,19 +91,20 @@
             
             searchView.frame = CGRectMake(searchFrame.origin.x, searchFrame.origin.y, searchFrame.size.width+shift, searchFrame.size.height);
             self.tableView.frame = CGRectMake(masterFrame.origin.x, masterFrame.origin.y, masterFrame.size.width+shift, masterFrame.size.height);
-            
+                        
         } completion:^(BOOL finished) {
         }];
 
 }
 
 -(BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar {
+    [searchView setShowsCancelButton:YES animated:YES];
     if (!isSearching) {
         [self toggleRootView];
         [remaining removeFromSuperview];
         isSearching = YES;
     }
-    [searchView setShowsCancelButton:YES animated:YES];
+    
     return YES;
 }
 
