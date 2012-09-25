@@ -36,6 +36,7 @@
     [super viewDidLoad];
     
     isSearching = NO;
+    shouldHide = NO;
 
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -46,12 +47,9 @@
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, self.view.frame.origin.y, 260, self.view.frame.size.height) style:UITableViewStylePlain];
       
 //    UIEdgeInsets i = self.tableView.scrollIndicatorInsets;
-//	i.top = self.tableView.contentOffset.y;
-//	self.tableView.scrollIndicatorInsets = i;
+//    i.top = self.tableView.contentOffset.y;
+//    self.tableView.scrollIndicatorInsets = i;
     
-    searchSpace = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
-    remaining = [[UINavigationBar alloc] initWithFrame:CGRectMake(260, 0, 60, 44)];
-    remaining.clipsToBounds = YES;
     searchView = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, 260, 44)];
     searchView.barStyle=UIBarStyleDefault;
     searchView.showsCancelButton=NO;
@@ -59,53 +57,68 @@
     searchView.autocapitalizationType=UITextAutocapitalizationTypeNone;
     searchView.delegate=self;
     searchView.placeholder = @"Search";
-    [searchSpace addSubview:searchView];
-    [searchSpace addSubview:remaining];
-    [searchSpace sendSubviewToBack:remaining];
-    self.tableView.tableHeaderView = [[UIView alloc] initWithFrame:searchSpace.frame];;
-	
-	[self.view addSubview:searchSpace];
-    self.tableView.showsVerticalScrollIndicator = YES;
     
+    self.tableView.tableHeaderView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+    
+    searchDisplayController = [[UISearchDisplayController alloc] initWithSearchBar:searchView contentsController:self];
+    searchDisplayController.searchResultsDelegate = self;
+    searchDisplayController.searchResultsDataSource = self;
+    searchDisplayController.delegate = self;
+  	
+	[self.view addSubview:searchView];
+    self.tableView.showsVerticalScrollIndicator = YES;
 }
 
 -(void) toggleRootView {
     //NSLog(@"Parent: %@", self.view.superview);
     CGRect location = self.view.window.rootViewController.view.frame;
-    CGRect masterFrame = self.tableView.frame;
     CGRect searchFrame = searchView.frame;
+    CGRect masterFrame = self.tableView.frame;
     short shift = 0;
     
         if (location.origin.x == 260) {
             location.origin.x = 320;
             shift = 60;
-            
+            shouldHide = NO;
         } else {
             location.origin.x = 260;
             shift = -60;
+            shouldHide = YES;
         }
         
         [UIView animateWithDuration:0.25 animations:^{
             
             self.view.window.rootViewController.view.frame = location;
-            
-            searchView.frame = CGRectMake(searchFrame.origin.x, searchFrame.origin.y, searchFrame.size.width+shift, searchFrame.size.height);
             self.tableView.frame = CGRectMake(masterFrame.origin.x, masterFrame.origin.y, masterFrame.size.width+shift, masterFrame.size.height);
-                        
+            
         } completion:^(BOOL finished) {
+            [UIView animateWithDuration:0.25 animations:^{
+                
+                searchView.frame = CGRectMake(searchFrame.origin.x, searchFrame.origin.y, searchFrame.size.width+shift, searchFrame.size.height);
+                
+            } completion:^(BOOL finished) {
+            }];
         }];
 
 }
 
+
 -(BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar {
-    [searchView setShowsCancelButton:YES animated:YES];
     if (!isSearching) {
         [self toggleRootView];
-        [remaining removeFromSuperview];
         isSearching = YES;
     }
-    
+    //[searchView setShowsCancelButton:YES animated:YES];
     return YES;
+}
+
+- (void)searchDisplayControllerDidBeginSearch:(UISearchDisplayController *)controller {
+    //[searchView setShowsCancelButton:YES animated:YES];
+    if (!isSearching) {
+        [self toggleRootView];
+        isSearching = YES;
+    }
+
 }
 
 -(BOOL)searchBarShouldEndEditing:(UISearchBar *)searchBar {
@@ -125,9 +138,17 @@
     searchView.text = nil;
     [searchView resignFirstResponder];
     
-    [searchSpace addSubview:remaining];
-    [searchSpace sendSubviewToBack:remaining];
-    [searchView setShowsCancelButton:NO animated:YES];
+    if (isSearching) {
+        [self toggleRootView];
+        isSearching = NO;
+    }
+    //[searchView setShowsCancelButton:NO animated:YES];
+}
+
+- (void)searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller {
+    searchView.text = nil;
+    [searchView resignFirstResponder];
+
     if (isSearching) {
         [self toggleRootView];
         isSearching = NO;
@@ -153,6 +174,7 @@
     CGRect rect = searchView.frame;
     rect.origin.y = MIN(0, scrollView.contentOffset.y);
     searchView.frame = rect;
+    
     /*
     if (scrollView.contentOffset.y > 0) {
         

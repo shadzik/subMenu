@@ -8,13 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SubViewController : UITableViewController <UIScrollViewDelegate,UISearchBarDelegate>
+@interface SubViewController : UITableViewController <UIScrollViewDelegate,UISearchBarDelegate,UISearchDisplayDelegate>
 {
-    //UIView *searchView;
     UISearchBar *searchView;
-    UIView *searchSpace;
-    UINavigationBar *remaining;
-    BOOL isSearching;
+    BOOL isSearching,shouldHide;
+    UISearchDisplayController *searchDisplayController;
 }
     
 @end
